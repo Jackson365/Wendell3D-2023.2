@@ -10,6 +10,9 @@ public class Player : MonoBehaviour
     private Transform cam;
     private Vector3 moveDirection;
     public float gravity;
+    public float colliderRadius;
+
+    private Animator anim;
 
     public float smoothRotTime;
     private float turnSmoothVelocity;
@@ -17,6 +20,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         cam = Camera.main.transform;
     }
@@ -25,6 +29,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         Move();
+        GetMouseInput();
     }
 
     private void Move()
@@ -53,14 +58,51 @@ public class Player : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f,smoothAngle,0f);
             
             //armazena a direção
-            moveDirection = Quaternion.Euler(0f, angle,0f) * Vector3.forward;
+            moveDirection = Quaternion.Euler(0f, angle,0f) * Vector3.forward * speed;
+
+            anim.SetInteger("Transition",1);
 
             //move o personagem
             //controller.Move(moveDirection * speed * Time.deltaTime); 
             }
+            else
+            {
+                moveDirection = Vector3.zero;
+                anim.SetInteger("Transition",0);
+            }
         }
 
         moveDirection.y -= gravity * Time.deltaTime;
-        controller.Move(moveDirection * speed * Time.deltaTime);
+        controller.Move(moveDirection * Time.deltaTime);
+    }
+    void GetMouseInput()
+    {
+        if(controller.isGrounded)
+        {
+            if(Input.GetMouseButtonDown(0))
+            {
+                StartCoroutine(Attack());
+            }
+        }
+    }
+
+    IEnumerator Attack()
+    {
+        anim.SetInteger("Transition",2);
+        yield return new WaitForSeconds(1f);
+    }
+
+    void GetEnemiEsList()
+    {
+        foreach (Collider c in Physics.OverlapSphere((transform.position + transform.forward * colliderRadius), colliderRadius))
+        {
+            
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position + transform.forward, colliderRadius);
     }
 }
