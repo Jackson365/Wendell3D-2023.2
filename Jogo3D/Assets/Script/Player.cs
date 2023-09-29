@@ -16,6 +16,8 @@ public class Player : MonoBehaviour
 
     public float smoothRotTime;
     private float turnSmoothVelocity;
+
+    public List<Transform> enemyList = new List<Transform>();
     
     // Start is called before the first frame update
     void Start()
@@ -48,27 +50,37 @@ public class Player : MonoBehaviour
         //verifica se o personagem está se movimentando (se for > 0)
             if (direction.magnitude > 0)
             {
-            //Armazena a rotação e o angulo da camera
-            float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+                if (!anim.GetBool("Attacking"))
+                {
+                    //Armazena a rotação e o angulo da camera
+                    float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
 
-            //Armazena a rotação mais suave
-            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref turnSmoothVelocity, smoothRotTime);
+                    //Armazena a rotação mais suave
+                    float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, angle, ref turnSmoothVelocity, smoothRotTime);
 
-            //rotaciona o personagem
-            transform.rotation = Quaternion.Euler(0f,smoothAngle,0f);
+                    //rotaciona o personagem
+                    transform.rotation = Quaternion.Euler(0f,smoothAngle,0f);
             
-            //armazena a direção
-            moveDirection = Quaternion.Euler(0f, angle,0f) * Vector3.forward * speed;
+                    //armazena a direção
+                    moveDirection = Quaternion.Euler(0f, angle,0f) * Vector3.forward * speed;
 
-            anim.SetInteger("Transition",1);
+                    anim.SetInteger("Transition",1);
 
-            //move o personagem
-            //controller.Move(moveDirection * speed * Time.deltaTime); 
+                    //move o personagem
+                    //controller.Move(moveDirection * speed * Time.deltaTime);   
+                }
+                else
+                {
+                    moveDirection = Vector3.zero;
+                    anim.SetBool("Walking", false);
+                }
             }
             else
             {
+                //anim.SetInteger("Transition", 0);
+                anim.SetBool("Walking", false);
                 moveDirection = Vector3.zero;
-                anim.SetInteger("Transition",0);
+                //anim.SetInteger("Transition",0);
             }
         }
 
@@ -81,7 +93,16 @@ public class Player : MonoBehaviour
         {
             if(Input.GetMouseButtonDown(0))
             {
-                StartCoroutine(Attack());
+                if (anim.GetBool("Walking"))
+                {
+                    anim.SetBool("Walking", false);
+                    anim.SetInteger("Transition", 0);
+                }
+
+                if (!anim.GetBool("Walking"))
+                {
+                    StartCoroutine(Attack());
+                }
             }
         }
     }
@@ -90,13 +111,25 @@ public class Player : MonoBehaviour
     {
         anim.SetInteger("Transition",2);
         yield return new WaitForSeconds(1f);
+        GetEnemiesList();
+        foreach (Transform e in enemyList)
+        {
+            Debug.Log(e.name);
+        }
+
+        yield return new WaitForSeconds(1f);
+        anim.SetInteger("Transition", 0);
     }
 
-    void GetEnemiEsList()
+    void GetEnemiesList()
     {
+        enemyList.Clear();
         foreach (Collider c in Physics.OverlapSphere((transform.position + transform.forward * colliderRadius), colliderRadius))
         {
-            
+            if (c.gameObject.CompareTag("Enemy"))
+            {
+                enemyList.Add(c.transform);
+            }
         }
     }
 
