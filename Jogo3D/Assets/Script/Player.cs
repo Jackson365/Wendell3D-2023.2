@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     public float speed;
     private CharacterController controller;
+    public float damage = 20;
 
     private Transform cam;
     private Vector3 moveDirection;
@@ -120,7 +121,13 @@ public class Player : MonoBehaviour
         GetEnemiesList();
         foreach (Transform e in enemyList)
         {
-            Debug.Log(e.name);
+            CombatEnemy enemy = e.GetComponent<CombatEnemy>();
+
+            if (enemy != null)
+            {
+                enemy.GetHit(damage);
+            }
+            //Debug.Log(e.name);
         }
 
         yield return new WaitForSeconds(0.5f);

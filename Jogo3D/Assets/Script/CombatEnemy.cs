@@ -9,11 +9,12 @@ using UnityEngine.AI;
 public class CombatEnemy : MonoBehaviour
 {
     [Header("Atributtes")] 
-    public float totalHealth;
+    public float totalHealth = 100;
     public float attackDamage;
     public float movementSpeed;
     public float lookRadius;
     public float colliderRadius = 2;
+    public float rotationSpeed;
 
     [Header("Components")] 
     //[SerializeField]
@@ -41,7 +42,9 @@ public class CombatEnemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float distance = Vector3.Distance(player.position, transform.position);
+        if (totalHealth > 0)
+        { 
+            float distance = Vector3.Distance(player.position, transform.position);
 
         if (distance <= lookRadius)
         {
@@ -53,9 +56,11 @@ public class CombatEnemy : MonoBehaviour
                 anim.SetBool("Walk Forward", true);
                 walking = true;
             }
-            if(distance <= agent.stoppingDistance)
+
+            if (distance <= agent.stoppingDistance)
             {
                 StartCoroutine("Attack");
+                LookTarget();
                 //agent.isStopped = true;
             }
             else
@@ -73,10 +78,11 @@ public class CombatEnemy : MonoBehaviour
 
         }
     }
+}
     
     IEnumerator Attack()
     {
-        if (!waitFor)
+        if (!waitFor && !hiting)
         {
             waitFor = true;
             attacking = true;
@@ -102,7 +108,7 @@ public class CombatEnemy : MonoBehaviour
         }
     }
 
-    void GetHit(float damage)
+    public void GetHit(float damage)
     {
         totalHealth -= damage;
         if (totalHealth > 0)
@@ -111,6 +117,7 @@ public class CombatEnemy : MonoBehaviour
             StopCoroutine("Attack");
             anim.SetTrigger("Take Damage");
             hiting = true;
+            StartCoroutine("RecoveryHit");
         }
         else
         {
@@ -126,6 +133,13 @@ public class CombatEnemy : MonoBehaviour
         anim.SetBool("Claw Attack", false);
         hiting = false;
         waitFor = false;
+    }
+
+    void LookTarget()
+    {
+        Vector3 direction = (player.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
     }
 
     private void OnDrawGizmosSelected()
