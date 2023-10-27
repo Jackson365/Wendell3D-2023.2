@@ -7425,7 +7425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   totalHealth: 100
-  attackDamage: 0
+  attackDamage: 30
   movementSpeed: 0
   lookRadius: 6
   colliderRadius: 2
@@ -13703,10 +13703,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   damage: 20
+  totalHealth: 90
   gravity: 10
   colliderRadius: 1.9
   smoothRotTime: 0.1
   enemyList: []
+  isDead: 0
 --- !u!143 &3401897687912319391
 CharacterController:
   m_ObjectHideFlags: 0

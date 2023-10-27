@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public float speed;
     private CharacterController controller;
     public float damage = 20;
+    public float totalHealth;
 
     private Transform cam;
     private Vector3 moveDirection;
@@ -21,6 +22,10 @@ public class Player : MonoBehaviour
     public List<Transform> enemyList = new List<Transform>();
 
     private bool isWalking;
+    private bool waitFor;
+    private bool isHitting;
+
+    public bool isDead;
     
     // Start is called before the first frame update
     void Start()
@@ -33,8 +38,11 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Move();
-        GetMouseInput();
+        if (!isDead)
+        {
+            Move();
+            GetMouseInput(); 
+        }
     }
 
     private void Move()
@@ -114,25 +122,30 @@ public class Player : MonoBehaviour
 
     IEnumerator Attack()
     {
-        anim.SetBool("Attacking", true);
-        
-        anim.SetInteger("Transition",2);
-        yield return new WaitForSeconds(1f);
-        GetEnemiesList();
-        foreach (Transform e in enemyList)
+        if (!waitFor && !isHitting)
         {
-            CombatEnemy enemy = e.GetComponent<CombatEnemy>();
+            waitFor = true;
+            anim.SetBool("Attacking", true);
 
-            if (enemy != null)
+            anim.SetInteger("Transition", 2);
+            yield return new WaitForSeconds(1f);
+            GetEnemiesList();
+            foreach (Transform e in enemyList)
             {
-                enemy.GetHit(damage);
-            }
-            //Debug.Log(e.name);
-        }
+                CombatEnemy enemy = e.GetComponent<CombatEnemy>();
 
-        yield return new WaitForSeconds(0.5f);
-        anim.SetInteger("Transition", 0);
-        anim.SetBool("Attacking", false);
+                if (enemy != null)
+                {
+                    enemy.GetHit(damage);
+                }
+                //Debug.Log(e.name);
+            }
+
+            yield return new WaitForSeconds(0.5f);
+            anim.SetInteger("Transition", 0);
+            anim.SetBool("Attacking", false);
+            waitFor = true;
+        }
     }
 
     void GetEnemiesList()
@@ -145,6 +158,33 @@ public class Player : MonoBehaviour
                 enemyList.Add(c.transform);
             }
         }
+    }
+    
+    public void GetHit(float damage)
+    {
+        totalHealth -= damage;
+        if (totalHealth > 0)
+        {
+            //Esta Vivo
+            StopCoroutine("Attack");
+            anim.SetInteger("Transition", 3);
+            isHitting = true;
+            StartCoroutine("RecoveryHit");
+        }
+        else
+        {
+            //Esta Morto
+            isDead = true;
+            anim.SetTrigger("Die");
+        }
+    }
+
+    IEnumerator RecoveryHit()
+    {
+        yield return new WaitForSeconds(1f);
+        anim.SetInteger("Transition", 0);
+        isHitting = false;
+        anim.SetBool("Attacking", false);
     }
 
     private void OnDrawGizmosSelected()

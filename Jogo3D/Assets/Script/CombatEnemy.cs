@@ -29,6 +29,7 @@ public class CombatEnemy : MonoBehaviour
     private bool attacking;
     private bool hiting;
     private bool waitFor;
+    private bool playerIsDead;
 
     // Start is called before the first frame update
     void Start()
@@ -82,7 +83,7 @@ public class CombatEnemy : MonoBehaviour
     
     IEnumerator Attack()
     {
-        if (!waitFor && !hiting)
+        if (!waitFor && !hiting && !playerIsDead)
         {
             waitFor = true;
             attacking = true;
@@ -94,6 +95,15 @@ public class CombatEnemy : MonoBehaviour
             yield return new WaitForSeconds(1f);
             waitFor = false;
         }
+
+        if (playerIsDead)
+        {
+            anim.SetBool("Walk Forward", false); 
+            anim.SetBool("Claw Attack" , true);
+            walking = false;
+            attacking = false;
+            agent.isStopped = true;
+        }
     }
 
     void GetPlayer()
@@ -103,7 +113,8 @@ public class CombatEnemy : MonoBehaviour
             if (c.gameObject.CompareTag("Player"))
             {
                 //VAI CAUSAR DANO NO PLAYER
-                Debug.Log("Bateu no player");
+                c.gameObject.GetComponent<Player>().GetHit(attackDamage);
+                playerIsDead = c.gameObject.GetComponent<Player>().isDead;
             }
         }
     }
