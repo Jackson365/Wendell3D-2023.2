@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Player : MonoBehaviour
 {
     public float speed;
     private CharacterController controller;
     public float damage = 20;
-    public float totalHealth;
-
+    public float totalHealth = 140;
+    
     private Transform cam;
     private Vector3 moveDirection;
     public float gravity;
@@ -34,7 +35,9 @@ public class Player : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
-        cam = Camera.main.transform;
+        cam = Camera.main.transform; 
+
+        //GameController.instance.UpdateLives(totalHealth);
     }
     
     // Update is called once per frame
