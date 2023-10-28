@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
     private bool isHitting;
 
     public bool isDead;
+    public AudioSource AttackingSword;
+    
     
     // Start is called before the first frame update
     void Start()
@@ -57,6 +59,7 @@ public class Player : MonoBehaviour
         
         //varialvel local que armazena o valor do eixo horizontal e vertical
         Vector3 direction = new Vector3(horizontal, 0f, vertical);
+        
 
         //verifica se o personagem está se movimentando (se for > 0)
             if (direction.magnitude > 0)
@@ -76,10 +79,7 @@ public class Player : MonoBehaviour
                     moveDirection = Quaternion.Euler(0f, angle,0f) * Vector3.forward * speed;
 
                     anim.SetInteger("Transition",1);
-                    isWalking = true;
-
-                    //move o personagem
-                    //controller.Move(moveDirection * speed * Time.deltaTime);   
+                    isWalking = true; 
                 }
                 else
                 {
@@ -128,6 +128,7 @@ public class Player : MonoBehaviour
             anim.SetBool("Attacking", true);
 
             anim.SetInteger("Transition", 2);
+            AttackingSword.Play();
             yield return new WaitForSeconds(1f);
             GetEnemiesList();
             foreach (Transform e in enemyList)

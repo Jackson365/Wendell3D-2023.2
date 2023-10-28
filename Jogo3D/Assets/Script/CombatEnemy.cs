@@ -43,6 +43,10 @@ public class CombatEnemy : MonoBehaviour
     public int currentPathIndex;
     public float pathDistance;
 
+    public AudioSource Pain;
+    public AudioSource PainComplet;
+    public AudioSource SpiderAttack;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -120,6 +124,7 @@ public class CombatEnemy : MonoBehaviour
             walking = false;
             anim.SetBool("Walk Forward", false);
             anim.SetBool("Claw Attack" , true);
+            SpiderAttack.Play();
             yield return new WaitForSeconds(1.5f);
             GetPlayer();
             yield return new WaitForSeconds(1f);
@@ -144,7 +149,12 @@ public class CombatEnemy : MonoBehaviour
             {
                 //VAI CAUSAR DANO NO PLAYER
                 c.gameObject.GetComponent<Player>().GetHit(attackDamage);
-                playerIsDead = c.gameObject.GetComponent<Player>().isDead;
+                Pain.Play();
+                if(playerIsDead = c.gameObject.GetComponent<Player>().isDead)
+                {
+                    PainComplet.Play();
+                }
+                //playerIsDead = c.gameObject.GetComponent<Player>().isDead;
             }
         }
     }
