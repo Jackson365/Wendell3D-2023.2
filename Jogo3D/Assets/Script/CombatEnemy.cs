@@ -2,9 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Security.Cryptography;
+using TreeEditor;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
+
+   
+  
+
 
 public class CombatEnemy : MonoBehaviour
 {
@@ -30,6 +37,11 @@ public class CombatEnemy : MonoBehaviour
     private bool hiting;
     private bool waitFor;
     private bool playerIsDead;
+
+    [Header("WayPoints")]
+    public List<Transform> wayPoints = new List<Transform>();
+    public int currentPathIndex;
+    public float pathDistance;
 
     // Start is called before the first frame update
     void Start()
@@ -73,13 +85,31 @@ public class CombatEnemy : MonoBehaviour
         {
             //Personagem está não no raio de ação
             anim.SetBool("Walk Forward", false);
-            agent.isStopped = true;
+            //agent.isStopped = true;
             walking = false;
             attacking = false;
+            MoveToWayPoints();
 
         }
     }
 }
+
+    void MoveToWayPoints()
+    {
+        if(wayPoints.Count > 0)
+        {
+            float distance = Vector3.Distance(wayPoints[currentPathIndex].position, transform.position);
+            agent.destination = wayPoints[currentPathIndex].position;
+
+            if(distance <= pathDistance)
+            {
+                //vai para o proximo ponto 
+                currentPathIndex = Random.Range(0, wayPoints.Count);
+            }
+            anim.SetBool("Walk Forward", true);
+            walking = true;
+        }
+    }
     
     IEnumerator Attack()
     {
@@ -99,7 +129,7 @@ public class CombatEnemy : MonoBehaviour
         if (playerIsDead)
         {
             anim.SetBool("Walk Forward", false); 
-            anim.SetBool("Claw Attack" , true);
+            anim.SetBool("Claw Attack" , false);
             walking = false;
             attacking = false;
             agent.isStopped = true;

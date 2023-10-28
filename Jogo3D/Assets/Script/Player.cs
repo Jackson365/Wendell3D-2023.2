@@ -144,7 +144,7 @@ public class Player : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
             anim.SetInteger("Transition", 0);
             anim.SetBool("Attacking", false);
-            waitFor = true;
+            waitFor = false;
         }
     }
 
@@ -175,7 +175,7 @@ public class Player : MonoBehaviour
         {
             //Esta Morto
             isDead = true;
-            anim.SetTrigger("Die");
+            anim.SetTrigger("die");
         }
     }
 
