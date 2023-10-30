@@ -28,6 +28,8 @@ public class Player : MonoBehaviour
 
     public bool isDead;
     public AudioSource AttackingSword;
+    public AudioSource ColectHealth;
+    public AudioSource ColectCoin;
     
     
     // Start is called before the first frame update
@@ -37,7 +39,7 @@ public class Player : MonoBehaviour
         controller = GetComponent<CharacterController>();
         cam = Camera.main.transform; 
 
-        //GameController.instance.UpdateLives(totalHealth);
+        GameController.instance.UpdateLives(totalHealth);
     }
     
     // Update is called once per frame
@@ -167,6 +169,8 @@ public class Player : MonoBehaviour
     public void GetHit(float damage)
     {
         totalHealth -= damage;
+        GameController.instance.UpdateLives(totalHealth);
+
         if (totalHealth > 0)
         {
             //Esta Vivo
@@ -191,9 +195,28 @@ public class Player : MonoBehaviour
         anim.SetBool("Attacking", false);
     }
 
+    public void IncreaseHealth(float value)
+    {
+        totalHealth += value;
+        GameController.instance.UpdateLives(totalHealth);
+    }
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position + transform.forward, colliderRadius);
+    }
+
+    private void OnTriggerEnter(Collider collider)
+    {
+        if(collider.gameObject.tag == "IntemHealth")
+        {
+            ColectHealth.Play();
+        }
+
+        if(collider.gameObject.tag == "IntemCoin")
+        {
+            ColectCoin.Play();
+        }
     }
 }
