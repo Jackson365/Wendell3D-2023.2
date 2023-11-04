@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     public float speed;
     private CharacterController controller;
     public float damage = 20;
-    public float totalHealth = 140;
+    public float totalHealth = 100;
     
     private Transform cam;
     private Vector3 moveDirection;
@@ -119,7 +119,7 @@ public class Player : MonoBehaviour
 
                 if (!anim.GetBool("Walking"))
                 {
-                    StartCoroutine(Attack());
+                    StartCoroutine("Attack");
                 }
             }
         }
@@ -134,7 +134,7 @@ public class Player : MonoBehaviour
 
             anim.SetInteger("Transition", 2);
             AttackingSword.Play();
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.7f);
             GetEnemiesList();
             foreach (Transform e in enemyList)
             {
